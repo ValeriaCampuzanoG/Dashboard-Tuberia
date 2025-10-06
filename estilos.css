@@ -109,14 +109,34 @@
               border-color: #27ae60;
           }
           
-          .flow-card.blue { 
-            background-color: #e3f2fd; 
-              border-color: #2196f3;
+          .flow-card.uno { 
+            background-color: #fff3e0; 
+              border-color: #E0C2A2;
           }
           
-          .flow-card.orange { 
+          .flow-card.dos { 
             background-color: #fff3e0; 
-              border-color: #ff9800;
+              border-color: #D39C83;
+          }
+          
+           .flow-card.tres { 
+            background-color: #EDE5CF; 
+              border-color: #C1766F;
+          }
+          
+          .flow-card.cuatro { 
+            background-color: #EDE5CF; 
+              border-color: #A65461;
+          }
+          
+          .flow-card.cinco { 
+            background-color: #EDE5CF; 
+              border-color: #813753;
+          }
+          
+          .flow-card.seis { 
+            background-color: #EDE5CF; 
+              border-color: #541F3FF;
           }
           
           .flow-title {

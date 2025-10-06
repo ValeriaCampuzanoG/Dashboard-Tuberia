@@ -27,6 +27,8 @@ library(ggplot2)
 library(ggiraph)
 
 
+
+
 theme_hgz <- create_theme(
   bs4dash_color(
     fuchsia = "#8B3058FF",
@@ -80,3 +82,37 @@ bd_tub2024 <- bd_tub2024 %>%
 
 
 
+# Gráfica de determinaciones 
+
+
+gen_barra_determinaciones <- function(ent_sel) {
+  
+
+
+determinaciones <- bd_tub2024 %>%
+  select( cve, entidad, facultad_de_asbtenrse_a_investigar, criterio_oportunidad, no_ejercicio_acción_penal, archivo_temporal,
+          incompetencia, acumulacion, otras_determinaciones) %>%
+  filter( entidad == ent_sel) %>%
+  pivot_longer(
+    cols = c("facultad_de_asbtenrse_a_investigar", "criterio_oportunidad", "no_ejercicio_acción_penal", "archivo_temporal",
+             "incompetencia", "acumulacion", "otras_determinaciones"),  
+    names_to = "determinaciones",
+    values_to = "total"
+  ) %>%
+  arrange(total) %>%
+  ggplot(aes(x = entidad, y = total, fill = determinaciones)) +
+  
+  geom_col() +
+  coord_flip() + 
+  labs(
+    title = "Distribución de determinaciones",
+    x = "",
+    y = "",
+    fill = "Determinaciones"
+  ) +
+  theme_minimal()
+
+determinaciones
+}
+
+gen_barra_determinaciones("Tlaxcala")

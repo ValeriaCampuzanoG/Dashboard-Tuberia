@@ -158,7 +158,7 @@ ui <- fluidPage(
       
       div(class = "flow-container",
           #Llamadas
-          div(class = "flow-card purple",
+          div(class = "flow-card uno",
               div(class = "flow-title", "Llamadas de emergencia"),
               div(class = "flow-main-value", textOutput("llamadas")),
               div(class = "flow-detail-item",
@@ -174,20 +174,20 @@ ui <- fluidPage(
           div(class = "flow-operator", "\u279C"),
           
           #C.I. gestionadas
-          div(class = "flow-card green",
+          div(class = "flow-card dos",
               div(class = "flow-title", "C.I. gestionadas"),
-              div(class = "flow-main-value", textOutput("resueltos"))
+              div(class = "flow-main-value", textOutput("totalci"))
           ),
           
           div(class = "flow-operator", "\u279C"),
           
           # Canalizadas a MASC
-          div(class = "flow-card purple",
+          div(class = "flow-card tres",
               div(class = "flow-title", "Canalizadas a MASC"),
-              div(class = "flow-main-value", textOutput("asuntos_ingresados")),
+              div(class = "flow-main-value", textOutput("canalizadasMASC")),
               div(class = "flow-detail-item",
                   span(" Concluidas por acuerdos reparatorios: "),
-                  span(class = "flow-detail-value", textOutput("fisicos_display", inline = TRUE))
+                  span(class = "flow-detail-value", textOutput("concluidasMASC", inline = TRUE))
               )
           ),
           
@@ -195,34 +195,34 @@ ui <- fluidPage(
           
           
           # Causas penales
-          div(class = "flow-card blue",
+          div(class = "flow-card cuatro",
               div(class = "flow-title", "Causas penales gestionadas"),
-              div(class = "flow-main-value", textOutput("concluidos")) #,
+              div(class = "flow-main-value", textOutput("totalCausas")) #,
               #div(class = "flow-detail-item", textOutput("concluidos_pct"))
           ),
           
           div(class = "flow-operator", "\u279C"),
           
           # Justicia Alternativa
-          div(class = "flow-card purple",
+          div(class = "flow-card cinco",
               div(class = "flow-title", "Justicia Alternativa"),
-              div(class = "flow-main-value", textOutput("asuntos_ingresados")),
+              div(class = "flow-main-value", textOutput("totalJA")),
               div(class = "flow-detail-item",
                   span("Acuerdos reparatorios: "),
-                  span(class = "flow-detail-value", textOutput("fisicos_display", inline = TRUE))
+                  span(class = "flow-detail-value", textOutput("totalAcuerdos", inline = TRUE))
               ),
               div(class = "flow-detail-item",
                   span("Suspensión condicional: "),
-                  span(class = "flow-detail-value", textOutput("electronicos_display", inline = TRUE))
+                  span(class = "flow-detail-value", textOutput("totalSusp", inline = TRUE))
               )   
           ),
           
           div(class = "flow-operator", "\u279C"),
           
           # Sentencias en Juicio Oral
-          div(class = "flow-card blue",
+          div(class = "flow-card seis",
               div(class = "flow-title", "Sentencias en Juicio Oral"),
-              div(class = "flow-main-value", textOutput("concluidos")),
+              div(class = "flow-main-value", textOutput("Sentencias")),
               div(class = "flow-detail-item", textOutput("concluidos_pct"))
           )
       ),
@@ -268,6 +268,7 @@ server <- function(input, output, session) {
   })
   
   
+  # TABLAS 
   
   # Outputs para tablas de carpetas de investigación abiertas 
   #Totales
@@ -299,44 +300,50 @@ server <- function(input, output, session) {
   output$causasNuevaspct <- renderText({ paste0(format(datos()$pct_causas_iniciadas, big.mark = ","), "%") })
   output$causasRezagopct <- renderText({ paste0(format(datos()$pct_causas_rezago, big.mark = ","), "%") })
   
-  # Flujo principal
+  # FLUJO PRINCIPAL 
+  
   # Llamadas de emergencia 
   output$llamadas <- renderText({ format(datos()$llamadas_emergencia, big.mark = ",") })
   output$llamadas911 <- renderText({ format(datos()$llamadas_911, big.mark = ",") })
   output$llamadas089 <- renderText({ format(datos()$llamadas_089, big.mark = ",") })
   
-  # Carpetas 
-  output$llamadas <- renderText({ format(datos()$llamadas_emergencia, big.mark = ",") })
+  # Carpetas de investigacion
+  output$totalci <- renderText({ format(datos()$ci_gestionadas, big.mark = ",") })
   
   #Canalizadas a MASC
   # Canalizadas
-  
+  output$canalizadasMASC <- renderText({ format(datos()$total_canalizadas_masc, big.mark = ",") })
   # Concluidas
   
-  # Outputs para el flujo principal
-  output$asuntos_ingresados <- renderText({ format(datos()$asuntos_ingresados, big.mark = ",") })
+  # Causas ingreasadas
+  output$totalCausas <- renderText({ format(datos()$causas_ingresadas, big.mark = ",") })
   
-  output$fisicos_display <- renderText({ 
-    paste0(format(datos()$fisicos, big.mark = ","), " (", 
-           round(datos()$fisicos / datos()$asuntos_ingresados * 100, 2), "%)")
-  })
+  # Justicia Alternativa
+  output$totalJA <- renderText({ format(datos()$justicia_alternativa, big.mark = ",") })
+  output$totalAcuerdos <- renderText({ 
+    paste0(format(datos()$acuerdo_reparatorio_cumplido, big.mark = ","),
+           " (",
+           format(datos()$pct_acuerdos_sj, big.mark = ","), 
+           "%)") 
+    })
   
-  output$electronicos_display <- renderText({ 
-    paste0(format(datos()$electronicos, big.mark = ","), " (", 
-           round(datos()$electronicos / datos()$asuntos_ingresados * 100, 2), "%)")
-  })
+  output$totalSusp <- renderText({ 
+    paste0(format(datos()$suspension_condicional_cumplida, big.mark = ","),
+           " (",
+           format(datos()$pct_susp_sj, big.mark = ","), 
+           "%)")
+    })
   
-  output$resueltos <- renderText({ format(datos()$resueltos, big.mark = ",") })
+  # Sentencias
+  output$Sentencias <- renderText({ format(datos()$sentencia_jo_tt, big.mark = ",") })
   
-  output$egresos_display <- renderText({ 
-    paste0(format(datos()$egresos, big.mark = ","), " (", 
-           round(datos()$egresos / datos()$resueltos * 100, 2), "%)")
-  })
+  # Gráfica de determinaciones 
   
-  output$salida_display <- renderText({ 
-    paste0(datos()$salida, " (", 
-           round(datos()$salida / datos()$resueltos * 100, 2), "%)")
-  })
+  # Gráfica de sentencias 
+  
+  
+  
+
   
 
 }
