@@ -47,6 +47,13 @@ theme_hgz <- create_theme(
 )
 
 
+# Paleta de colores
+
+color_scale <- rev(as.character(
+  paletteer::paletteer_c("grDevices::BrwnYl", 30)
+))
+
+
 # Importar datos
 bd_tub2024 <- read_excel("www/bd/bd_tuberia_2024.xlsx")
 bd_tub2024 <- bd_tub2024[-c(1), ]
@@ -84,35 +91,226 @@ bd_tub2024 <- bd_tub2024 %>%
 
 # Gráfica de determinaciones 
 
-
-gen_barra_determinaciones <- function(ent_sel) {
-  
-
-
-determinaciones <- bd_tub2024 %>%
+bd_gra_det <- bd_tub2024 %>%
   select( cve, entidad, facultad_de_asbtenrse_a_investigar, criterio_oportunidad, no_ejercicio_acción_penal, archivo_temporal,
           incompetencia, acumulacion, otras_determinaciones) %>%
-  filter( entidad == ent_sel) %>%
   pivot_longer(
     cols = c("facultad_de_asbtenrse_a_investigar", "criterio_oportunidad", "no_ejercicio_acción_penal", "archivo_temporal",
              "incompetencia", "acumulacion", "otras_determinaciones"),  
     names_to = "determinaciones",
     values_to = "total"
   ) %>%
-  arrange(total) %>%
-  ggplot(aes(x = entidad, y = total, fill = determinaciones)) +
+  filter(!is.na(total))  %>%
+  group_by(entidad ) %>%
+  mutate(
+    pct = round((total / sum(total, na.rm = TRUE)) * 100, 2))  %>%
+  mutate(
+    nom_determinaciones = case_when(
+      determinaciones == "acumulacion" ~ "Acumulación",
+      determinaciones == "archivo_temporal" ~ "Archivo temporal",
+      determinaciones == "criterio_oportunidad" ~ "Criterio de oportunidad",
+      determinaciones == "facultad_de_asbtenrse_a_investigar" ~ "Facultad de abstenerse a investigar",
+      determinaciones == "incompetencia" ~ "Incompetencia",
+      determinaciones == "no_ejercicio_acción_penal" ~ "No ejercicio de la acción penal",
+      determinaciones == "otras_determinaciones" ~ "Otras",
+      TRUE ~ NA_character_ # para los casos que no cumplan ninguna condición
+    )
+  ) %>%
+  arrange(total) 
+
+
+
+gen_barra_determinaciones <- function(ent_sel) {
   
-  geom_col() +
-  coord_flip() + 
+
+
+g <- bd_gra_det %>%
+  # select( cve, entidad, facultad_de_asbtenrse_a_investigar, criterio_oportunidad, no_ejercicio_acción_penal, archivo_temporal,
+  #         incompetencia, acumulacion, otras_determinaciones) %>%
+  # pivot_longer(
+  #   cols = c("facultad_de_asbtenrse_a_investigar", "criterio_oportunidad", "no_ejercicio_acción_penal", "archivo_temporal",
+  #            "incompetencia", "acumulacion", "otras_determinaciones"),  
+  #   names_to = "determinaciones",
+  #   values_to = "total"
+  # ) %>% 
+  # mutate(
+  #   pct = (total / sum(total, na.rm = TRUE)) * 100
+  #   ) %>%
+  # arrange(total) %>%
+  # filter(!is.na(pct)) %>%
+  filter( entidad == ent_sel, 
+          !(pct == 0)) %>%
+  ggplot(
+    aes(x = reorder(nom_determinaciones, total), 
+        y = total, 
+        fill = total,
+        tooltip = paste0("<span style='font-size:20px;'><b>", nom_determinaciones, ": ", "</b></span><br>",
+                         "<span style='font-size:20px;'>", prettyNum(round(total, 2), big.mark = ","),
+                         "<span style='font-size:16px;'>","   (",round(pct, 2), "%)","</span>"),
+        data_id = entidad
+    )) +
+  ggiraph::geom_col_interactive() +
+  ggiraph::geom_text_interactive(aes(label = prettyNum(round(total,2), big.mark = ",")), hjust = 0, colour = "#535353", size = 12) +
+  coord_flip() +
   labs(
-    title = "Distribución de determinaciones",
+    #title = "none",
     x = "",
     y = "",
     fill = "Determinaciones"
   ) +
-  theme_minimal()
+  scale_fill_gradientn(colors = color_scale) +
+  #scale_fill_gradient(low = "#D39C83", high = "#813753") +
+  scale_x_discrete(labels = label_wrap(20)) +
+  scale_y_continuous(expand = expansion(c(0, 0.1)), labels = comma_format()) +
+  theme_bw() +
+  theme(
+    axis.title = element_text(family = "Montserrat", size = 9),
+    plot.subtitle = element_text(family = "Montserrat", 
+                                 size = 25, 
+                                 colour = "#636363",
+                                 margin = margin(b = 30, unit = "pt")),
+    plot.title = element_text(family = "Montserrat",
+                              face = "bold",
+                              size = 35,
+                              hjust = 0,
+                              margin = margin(b = 2, unit = "pt")),
+    axis.text = element_text(size = 15), 
+    #plot.title.position = "plot",
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.grid = element_blank(),
+    panel.border = element_blank(),
+    axis.line = element_line(),
+    legend.position = "none" #,
+    #axis.ticks.length = unit(0.2, "cm")
+    #plot.margin = margin(60, 20, 20, 20, "pt")
+  ) 
 
-determinaciones
+
+
+ggiraph::girafe(ggobj = g, 
+                width_svg = 16, 
+                height_svg =12,
+                pointsize = 12,
+                options = list(opts_tooltip(css = "background-color:#d9d9d9;color:black;padding:5px;border-radius:3px;opacity:0.9"),
+                               opts_hover(css = ''),
+                               opts_hover_inv(css = "opacity:0.1;"),
+                               opts_selection(type = "none"),
+                               opts_toolbar(saveaspng = FALSE)))
+
+
 }
 
-gen_barra_determinaciones("Tlaxcala")
+gen_barra_determinaciones("Veracruz")
+
+
+# Gráfica de sentencias 
+
+bd_gra_sent <- bd_tub2024 %>%
+  select( cve, entidad, procedimiento_abreviado_condenatoria, sentencia_jo_condenatoria, 
+          sentencia_jo_absolutoria, sentencia_jo_mixta) %>%
+  pivot_longer(
+    cols = c("procedimiento_abreviado_condenatoria", "sentencia_jo_condenatoria", "sentencia_jo_absolutoria", 
+             "sentencia_jo_mixta"),  
+    names_to = "sentencias",
+    values_to = "total"
+  ) %>%
+  filter(!is.na(total))  %>%
+  group_by(entidad ) %>%
+  mutate(
+    pct = round((total / sum(total, na.rm = TRUE)) * 100, 2))  %>%
+  mutate(
+    nom_sentencia = case_when(
+      sentencias == "procedimiento_abreviado_condenatoria" ~ "Procedimiento abreviado - Condenatoria",
+      sentencias == "sentencia_jo_condenatoria" ~ "Juicio oral - Condenatoria",
+      sentencias == "sentencia_jo_absolutoria" ~ "Juicio oral - Absolutoria",
+      sentencias == "sentencia_jo_mixta" ~ "Juicio oral - Mixta",
+      TRUE ~ NA_character_ # para los casos que no cumplan ninguna condición
+    )
+  ) %>%
+  arrange(total) 
+
+
+
+gen_barra_sentencias <- function(ent_sel) {
+  
+  
+  
+  g <- bd_gra_sent %>%
+    # select( cve, entidad, facultad_de_asbtenrse_a_investigar, criterio_oportunidad, no_ejercicio_acción_penal, archivo_temporal,
+    #         incompetencia, acumulacion, otras_determinaciones) %>%
+    # pivot_longer(
+    #   cols = c("facultad_de_asbtenrse_a_investigar", "criterio_oportunidad", "no_ejercicio_acción_penal", "archivo_temporal",
+    #            "incompetencia", "acumulacion", "otras_determinaciones"),  
+    #   names_to = "determinaciones",
+    #   values_to = "total"
+    # ) %>% 
+    # mutate(
+    #   pct = (total / sum(total, na.rm = TRUE)) * 100
+    #   ) %>%
+    # arrange(total) %>%
+    # filter(!is.na(pct)) %>%
+    filter( entidad == ent_sel , 
+            !(pct == 0)) %>%
+    ggplot(
+      aes(x = reorder(nom_sentencia, total), 
+          y = total, 
+          fill = total,
+          tooltip = paste0("<span style='font-size:20px;'><b>", nom_sentencia, ": ", "</b></span><br>",
+                           "<span style='font-size:20px;'>", prettyNum(round(total, 2), big.mark = ","),
+                           "<span style='font-size:16px;'>","   (",round(pct, 2), "%)","</span>"),
+          data_id = entidad
+      )) +
+    ggiraph::geom_col_interactive() +
+    ggiraph::geom_text_interactive(aes(label = prettyNum(round(total,2), big.mark = ",")), hjust = -.05, colour = "#535353", size = 12) +
+    coord_flip() +
+    labs(
+      #title = "none",
+      x = "",
+      y = "",
+      fill = "Sentencias"
+    ) +
+    scale_fill_gradientn(colors = color_scale) +
+    #scale_fill_gradient(low = "#D39C83", high = "#813753") +
+    scale_x_discrete(labels = label_wrap(20)) +
+    scale_y_continuous(expand = expansion(c(0, 0.1)), labels = comma_format()) +
+    theme_bw() +
+    theme(
+      axis.title = element_text(family = "Montserrat", size = 9),
+      plot.subtitle = element_text(family = "Montserrat", 
+                                   size = 25, 
+                                   colour = "#636363",
+                                   margin = margin(b = 30, unit = "pt")),
+      plot.title = element_text(family = "Montserrat",
+                                face = "bold",
+                                size = 35,
+                                hjust = 0,
+                                margin = margin(b = 2, unit = "pt")),
+      axis.text = element_text(size = 15), 
+      #plot.title.position = "plot",
+      panel.grid.major.x = element_blank(),
+      panel.grid.minor = element_blank(),
+      panel.grid = element_blank(),
+      panel.border = element_blank(),
+      axis.line = element_line(),
+      legend.position = "none" #,
+      #axis.ticks.length = unit(0.2, "cm")
+      #plot.margin = margin(60, 20, 20, 20, "pt")
+    ) 
+  
+  
+  
+  ggiraph::girafe(ggobj = g, 
+                  width_svg = 16, 
+                  height_svg =12,
+                  pointsize = 12,
+                  options = list(opts_tooltip(css = "background-color:#d9d9d9;color:black;padding:5px;border-radius:3px;opacity:0.9"),
+                                 opts_hover(css = ''),
+                                 opts_hover_inv(css = "opacity:0.1;"),
+                                 opts_selection(type = "none"),
+                                 opts_toolbar(saveaspng = FALSE)))
+  
+  
+}
+
+gen_barra_sentencias("Veracruz")

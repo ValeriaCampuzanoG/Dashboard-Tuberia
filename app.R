@@ -232,21 +232,32 @@ ui <- fluidPage(
       div(class = "breakdown-cards",
           div(class = "breakdown-card",
               div(class = "breakdown-title", "Determinaciones"),
-              div(style = "height: 100px; text-align: center; line-height: 100px; color: #999;",
-                  "Gráfico placeholder")
+              girafeOutput("grafica_barras_determinaciones", width = "100%", height = "300px")
           ),
           
       # Gráfica de sentencias    
           div(class = "breakdown-card",
-              div(class = "breakdown-title", "Sentencias en juicio oral"),
-              div(style = "height: 100px; text-align: center; line-height: 100px; color: #999;",
-                  "Gráfico placeholder")
+              div(class = "breakdown-title", "Sentencias"),
+              girafeOutput("grafica_barras_sentencias", width = "100%", height = "300px")
           ),
-          
+      # Tab de pendientes     
           div(class = "breakdown-card",
               div(class = "breakdown-title", "Pendientes al final del año"),
-              div(style = "height: 100px; text-align: center; line-height: 100px; color: #999;",
-                  "Gráfico placeholder")
+              div(style = "height: 20px; text-align: center;  color: #999;font-size: 20px;",
+                  "Fiscalía:"), 
+              br(),
+              div(#class = "flow-main-value", 
+                style = "height: 25px; text-align: center; color: #882217; font-size: 60px; font-weight: bold;",
+                  textOutput("ciPendientes")), 
+              br(),
+              br(),
+              br(),
+              div(style = "height: 20px; text-align: center; color: #999;font-size: 20px; ",
+                  "Tribunales:"), 
+              br(),
+              div(#class = "flow-main-value", 
+                style = "height: 25px; text-align: center; color: #882217; font-size: 60px; font-weight: bold;",
+                  textOutput("causasPendientes"))
           ) 
       )
   )
@@ -316,7 +327,7 @@ server <- function(input, output, session) {
   # Concluidas
   
   # Causas ingreasadas
-  output$totalCausas <- renderText({ format(datos()$causas_ingresadas, big.mark = ",") })
+  output$totalCausas <- renderText({ format(datos()$causas_gestionadas, big.mark = ",") })
   
   # Justicia Alternativa
   output$totalJA <- renderText({ format(datos()$justicia_alternativa, big.mark = ",") })
@@ -337,11 +348,23 @@ server <- function(input, output, session) {
   # Sentencias
   output$Sentencias <- renderText({ format(datos()$sentencia_jo_tt, big.mark = ",") })
   
+  
+  # Pendientes 
+  output$ciPendientes <- renderText({ format(datos()$rezago_ano_corriente, big.mark = ",") })
+  output$causasPendientes <- renderText({ format(datos()$causas_rezago_corriente, big.mark = ",") })
+  
   # Gráfica de determinaciones 
+  
+  output$grafica_barras_determinaciones <- renderGirafe({
+    gen_barra_determinaciones(ent_sel = input$sel_entidad)
+  })
+  
   
   # Gráfica de sentencias 
   
-  
+  output$grafica_barras_sentencias <- renderGirafe({
+    gen_barra_sentencias(ent_sel = input$sel_entidad)
+  })
   
 
   
