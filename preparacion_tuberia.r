@@ -185,12 +185,15 @@ g <- bd_gra_det %>%
     plot.subtitle = element_text(family = "Montserrat", 
                                  size = 25, 
                                  colour = "#636363",
-                                 margin = margin(b = 30, unit = "pt")),
+                                 margin = ggplot2::margin(t = 0, r = 0, b = 30, l = 0)
+                                 ),
     plot.title = element_text(family = "Montserrat",
                               face = "bold",
                               size = 35,
                               hjust = 0,
-                              margin = margin(b = 2, unit = "pt")),
+                              margin = ggplot2::margin(t = 0, r = 0, b = 2, l = 0)
+                              
+                              ),
     axis.text = element_text(size = 15), 
     #plot.title.position = "plot",
     panel.grid.major.x = element_blank(),
@@ -297,12 +300,14 @@ gen_barra_sentencias <- function(ent_sel) {
       plot.subtitle = element_text(family = "Montserrat", 
                                    size = 25, 
                                    colour = "#636363",
-                                   margin = margin(b = 30, unit = "pt")),
+                                   margin = ggplot2::margin(t = 0, r = 0, b = 30, l = 0)
+                                   ),
       plot.title = element_text(family = "Montserrat",
                                 face = "bold",
                                 size = 35,
                                 hjust = 0,
-                                margin = margin(b = 2, unit = "pt")),
+                                margin = ggplot2::margin(t = 0, r = 0, b = 2, l = 0)
+                                ),
       axis.text = element_text(size = 15), 
       #plot.title.position = "plot",
       panel.grid.major.x = element_blank(),
@@ -553,12 +558,14 @@ gen_barras_tub <- function(ind_sel, ano_sel_imp){
       plot.subtitle = element_text(family = "Montserrat", 
                                    size = 15, 
                                    colour = "#636363",
-                                   margin = margin(b = 10, unit = "pt")),
+                                   margin = ggplot2::margin(t = 0, r = 0, b = 10, l = 0)
+                                   ),
       plot.title = element_text(family = "Montserrat",
                                 face = "bold",
                                 size = 20,
                                 hjust = 0,
-                                margin = margin(b = 10, unit = "pt")),
+                                margin = ggplot2::margin(t = 0, r = 0, b = 10, l = 0)
+                                ),
       plot.caption = element_text(family = "Montserrat"), 
       #axis.text = element_text(family = "Montserrat"), 
       #plot.title.position = "plot",
@@ -662,12 +669,14 @@ gen_lineas_tub <- function(ind_sel, entidades_resaltadas){
       plot.subtitle = element_text(family = "Montserrat", 
                                    size = 15, 
                                    colour = "#636363",
-                                   margin = margin(b = 10, unit = "pt")),
+                                   margin = ggplot2::margin(t = 0, r = 0, b = 10, l = 0)
+                                   ),
       plot.title = element_text(family = "Montserrat",
                                 face = "bold",
                                 size = 20,
                                 hjust = 0,
-                                margin = margin(b = 20, unit = "pt")),
+                                margin = ggplot2::margin(t = 0, r = 0, b = 20, l = 0)
+                                ),
       plot.caption = element_text(family = "Montserrat"), 
       #axis.text = element_text(family = "Montserrat"), 
       #plot.title.position = "plot",

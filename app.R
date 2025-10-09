@@ -10,7 +10,6 @@ library(bs4Dash)
 library(plotly)
 library(shinycssloaders)
 library(reactable)
-library(leaflet)
 library(fresh)
 
 #source(file = "paquetes-setup.R")
@@ -509,9 +508,11 @@ ui <- fluidPage(
                           )),
                    column(
                      width = 6, 
+                     div(class = "control-group inline-control",
+                         tags$label("Selecciona la(s) entidad(es):", `for` = "entidades_lineas_tuberia"),
                      shinyWidgets::pickerInput(
                        inputId = "entidades_lineas_tuberia",
-                       label = "Selecciona la(s) entidad(es):",
+                       #label = "Selecciona la(s) entidad(es):",
                        choices = lista_entidades,
                        multiple = TRUE,
                        selected = sort(x = lista_entidades),
@@ -519,6 +520,7 @@ ui <- fluidPage(
                                       `deselect-all-text` = "Deseleccionar todas",
                                       `select-all-text` = "Seleccionar todas",
                                       `none-selected-text` = "Ninguna unidad seleccionada")
+                     )
                      )
                    )
                  )
@@ -528,7 +530,36 @@ ui <- fluidPage(
                girafeOutput("grafica_lineas_tub", width = "100%", height = "100%")
              )
              
-   ), 
+   ) , 
+   nav_panel("Tablas",
+             titlePanel(""),
+             div(class = "controls-section",
+                 fluidRow(
+                   column(6,
+                          div(class = "control-group inline-control",
+                              tags$label("Genera tablas con la variable y/o entidad de tu elección:", `for` = "ind_sel")
+                          ))
+                 )
+             ),
+
+             sidebarLayout(
+               sidebarPanel(
+                 selectInput("selected_state", "Selecciona una(s) entidad(ed):",
+                             choices = lista_entidades, multiple = TRUE, selected = "Nacional"),
+                 selectInput("selected_variable", "Selecciona una(s) variable(s):",
+                             choices = opciones_tuberia, multiple = TRUE, selected = "01 - Llamadas 911"),
+                 sliderInput("selected_years", "Selecciona el periodo:",
+                             min = min(as.numeric(bd_tuberia$ano)), max = max(as.numeric(bd_tuberia$ano)),
+                             value = c(min(bd_tuberia$ano), max(bd_tuberia$ano)), step = 1),
+                 downloadButton("download_xlsx", "Descarga los datos en formato .xlsx"),
+                 downloadButton("download_png", "Descarga la tabla en formato PNG")
+               ),
+
+               mainPanel(
+                 h3(textOutput("table_title")),
+                 reactableOutput("custom_table")
+               )
+             ))
   
   )
 )
@@ -651,6 +682,122 @@ server <- function(input, output, session) {
       ind_sel = input$ind_sel_2, 
       entidades_resaltadas = input$entidades_lineas_tuberia)
   })
+  
+  
+  # Generador de tablas 
+  data_filtered <- reactive({
+    bd_tuberia %>%
+      mutate(ano = as.numeric(ano)) %>%
+      filter(
+        entidad %in% input$selected_state,
+        cod_indicador %in% input$selected_variable,
+        ano >= input$selected_years[1],
+        ano <= input$selected_years[2]
+      )
+  })
+  
+  # Reactive for table construction
+  custom_table_data <- reactive({
+    df <- data_filtered()
+    
+    # Case 1: One state, one variable
+    if(length(input$selected_state) == 1 && length(input$selected_variable) == 1){
+      df %>%
+        select(ano, total) %>%
+        rename(Año = ano, Total = total)
+      
+      # Case 2: One state, multiple variables
+    } else if(length(input$selected_state) == 1 && length(input$selected_variable) > 1){
+      df %>%
+        select(entidad, cod_indicador, ano, total) %>%
+        tidyr::pivot_wider(names_from = cod_indicador, values_from = total) %>%
+        rename(Año = ano)
+      
+      # Case 3: Multiple states, one variable
+    } else if(length(input$selected_state) > 1 && length(input$selected_variable) == 1){
+      df %>%
+        select(entidad, cod_indicador, ano, total) %>%
+        tidyr::pivot_wider(names_from = state, values_from = total) %>%
+        rename(Año = ano)
+      
+    } else {
+      # fallback: just show year + total
+      df %>%
+        group_by(ano) %>%
+        summarise(Total = sum(total)) %>%
+        rename(Año = ano)
+    }
+  })
+  
+  # Table title
+  output$table_title <- renderText({
+    df <- data_filtered()
+    years <- range(bd_tuberia$ano)
+    
+    if(length(input$selected_state) == 1 && length(input$selected_variable) == 1){
+      paste0("Total de ", input$selected_variable, " en ", input$selected_state, ", ", 
+             years[1], "-", years[2])
+    } else if(length(input$selected_state) == 1 && length(input$selected_variable) > 1){
+      paste0("Indicadores procesales de ", input$selected_state, ", ", 
+             years[1], "-", years[2])
+    } else if(length(input$selected_state) > 1 && length(input$selected_variable) == 1){
+      paste0("Evolución de ", input$selected_variable, ", ", years[1], "-", years[2])
+    } else {
+      paste0("Resumen ", years[1], "-", years[2])
+    }
+  })
+  
+  # Render reactable
+  # output$custom_table <- renderReactable({
+  #   reactable(custom_table_data(), searchable = TRUE, filterable = TRUE)
+  # })
+  
+  output$custom_table <- renderReactable({
+    data <- custom_table_data()  # your reactive data frame
+    col_names <- names(df)
+    
+    # Create a list of column definitions
+    column_defs <- lapply(col_names, function(col) {
+      if (col == col_names[1]) {
+        # First column always centered
+        colDef(align = "center")
+      } else {
+        # All other columns formatted with prettyNum
+        colDef(
+          align = "right",
+          format = colFormat(
+            transform = function(x) prettyNum(x, big.mark = ",", scientific = FALSE)
+          )
+        )
+      }
+    })
+    names(column_defs) <- col_names
+    
+    reactable(
+      data,
+      searchable = TRUE,
+      filterable = TRUE,
+      columns = column_defs
+    )
+  })
+  
+  # Download XLSX
+  output$download_xlsx <- downloadHandler(
+    filename = function() {"custom_table.xlsx"},
+    content = function(file) {
+      write_xlsx(custom_table_data(), file)
+    }
+  )
+  
+  # Download PNG
+  output$download_png <- downloadHandler(
+    filename = function() {"custom_table.png"},
+    content = function(file) {
+      tmpfile <- tempfile(fileext = ".html")
+      reactablefmtr::save_reactable(custom_table_data(), tmpfile)
+      webshot2::webshot(tmpfile, file = file, vwidth = 1200, vheight = 800)
+    }
+  )
   
 
 }
