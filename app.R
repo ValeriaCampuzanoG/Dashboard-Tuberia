@@ -21,245 +21,486 @@ library(fresh)
 # UI
 ui <- fluidPage(
   
+  
+  tags$head(
+    # Favicon
+    tags$link(rel = "icon", type = "image/png", href = "https://mexicocomovamos.mx/wp-content/uploads/2024/03/mcv-10aniv.svg"),
+    
+    # Meta tags para compartir en redes sociales
+    tags$meta(property = "og:title", content = "México ¿Cómo vamos? - Análisis del IPS"),
+    tags$meta(property = "og:description", content = "Análisis interactivo del Índice de Progreso Social de México"),
+    tags$meta(property = "og:type", content = "website"),
+    tags$meta(name = "twitter:card", content = "summary_large_image"),
+    tags$meta(name = "twitter:title", content = "México ¿Cómo vamos? - Análisis del IPS"),
+    tags$meta(name = "twitter:description", content = "Análisis interactivo del Índice de Progreso Social de México"),
+    
+    # Title
+    tags$title("México ¿Cómo vamos? - Análisis del IPS"),
+    
+    tags$link(
+      rel = "stylesheet",
+      href = "https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&display=swap"
+    ),
+    tags$link(
+      rel = "stylesheet",
+      href = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    ),
+    tags$style(
+      HTML("
+        body {
+          margin: 0;
+          padding: 0;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Cantarell, 'Montserrat', sans-serif;
+          background-color: #f7f7f7;
+        }
+        
+        .mcv-top-bar a:hover {
+          transform: scale(1.1);
+          transition: transform 0.2s ease;
+        }
+        
+        .mcv-main-header a:hover {
+          text-decoration: none !important;
+        }
+        
+        /* Responsive */
+        @media (max-width: 1024px) {
+          .mcv-main-header > div > div {
+            flex-direction: column;
+            gap: 20px;
+          }
+          
+          .mcv-main-header > div > div > div {
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+          }
+        }
+        
+        @media (max-width: 768px) {
+          .mcv-top-bar > div > div {
+            flex-direction: column;
+            gap: 10px;
+          }
+          
+          .mcv-main-header a {
+            font-size: 10px;
+          }
+        }
+        
+        /* Estilos para el contenedor principal */
+        .main-content {
+          background-color: #f7f7f7;
+          min-height: 100vh;
+          padding: 10px 0;
+        }
+        
+        /* Estilos para wellPanel */
+        .well {
+          background-color: white !important;
+          border-radius: 12px;
+          box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+          border: 1px solid #e9ecef;
+          margin-bottom: 20px;
+        }
+        
+        /* Estilos para la sección de gráficas */
+        .graph-container {
+          background-color: white;
+          border-radius: 12px;
+          padding: 25px;
+          margin: 20px 0;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+          border: 1px solid #e9ecef;
+        }
+        
+        /* Estilos para el hero header */
+        .hero-header {
+          position: relative;
+          height: 180px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin: 0 0 25px 0;
+          background: linear-gradient(135deg,  #A65461 0%, #D39C83 100%); 
+          border-radius: 12px;
+          overflow: hidden;
+        }
+        
+        .hero-header::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(0, 0, 0, 0.2);
+          z-index: 1;
+        }
+        
+        .hero-title {
+          position: relative;
+          z-index: 2;
+          color: white;
+          text-align: center;
+          font-size: 2.8rem;
+          font-weight: 700;
+          text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+          margin: 0;
+          padding: 0 20px;
+          white-space: pre-line;
+          line-height: 1.2;
+          font-family: 'Montserrat', sans-serif;
+        }
+        
+        @media (max-width: 768px) {
+          .hero-header {
+            height: 140px;
+          }
+          
+          .hero-title {
+            font-size: 1.8rem;
+          }
+        }
+        
+        /* Estilos para tabs */
+        .nav-tabs {
+          border-bottom: 3px solid #6551D0;
+        }
+        
+        .nav-tabs > li > a {
+          color: #666;
+          font-weight: 500;
+          font-family: 'Montserrat', sans-serif;
+        }
+        
+        .nav-tabs > li.active > a {
+          color: #6551D0;
+          font-weight: 700;
+          border-bottom: 3px solid #6551D0;
+        }
+        
+        /* Estilos para botones */
+        .btn-primary {
+          background-color: #6551D0;
+          border-color: #6551D0;
+          font-family: 'Montserrat', sans-serif;
+          font-weight: 500;
+        }
+        
+        .btn-primary:hover {
+          background-color: #5441C0;
+          border-color: #5441C0;
+        }
+        
+        .btn-success {
+          background-color: #00b783;
+          border-color: #00b783;
+          font-family: 'Montserrat', sans-serif;
+          font-weight: 500;
+        }
+        
+        .btn-success:hover {
+          background-color: #009670;
+          border-color: #009670;
+        }
+        
+        /* Estilos para inputs */
+        .form-control {
+          border-radius: 8px;
+          border: 2px solid #e9ecef;
+          font-family: 'Montserrat', sans-serif;
+        }
+        
+        .form-control:focus {
+          border-color: #6551D0;
+          box-shadow: 0 0 0 0.2rem rgba(101, 81, 208, 0.25);
+        }
+        
+        /* Estilos para labels */
+        .control-label {
+          font-weight: 600;
+          color: #333;
+          font-family: 'Montserrat', sans-serif;
+          margin-bottom: 8px;
+        }
+      ")
+    )
+  ),
+  
+  
+  div(
+    style = "width: 100%; margin: 0; padding: 0;",
+    create_mcv_header()
+  ),
+  
+  
+  div(
+    class = "hero-header",
+    h1("Tubería procesal", 
+       class = "hero-title")
+  ),
+  
+  
+  navset_tab( 
+  
    tags$head(
     includeCSS("estilos.css")
-  #   tags$style(HTML())
+    
    ),
+   
+   
+   nav_panel("Tablero", 
+             div(class = "main-container",
+                 #Controles al inicio
+                 div(class = "controls-section",
+                     fluidRow(
+                       column(3,
+                              div(class = "control-group inline-control",
+                                  tags$label("Seleccione una entidad:", `for` = "sel_entidad"),
+                                  selectInput("sel_entidad", NULL,
+                                              choices = lista_entidades,
+                                              selected = "Nacional")
+                              )),
+                       column(3,
+                              div(class = "control-group inline-control",
+                                  tags$label("Año:", `for` = "ano"),
+                                  selectInput("ano", NULL,
+                                              choices = c("2024"),
+                                              selected = "2024")
+                              ))
+                     )
+                 ),
+                 
+                 div(class = "breakdown-cards",
+                     #Tablita de C.I. iniciadas
+                     div(class = "breakdown-card",
+                         div(class = "breakdown-title", "Carpetas de investigación iniciadas"),
+                         div(class = "breakdown-main-value", textOutput("ciInicidas")), #Total de C.I. iniciadas
+                         div(id = "tramite_breakdown",
+                             div(class = "breakdown-item",
+                                 span("Con persona imputada"),
+                                 span(
+                                   span(class = "breakdown-value", textOutput("CIimputado", inline = TRUE)), #total con personas imputadas
+                                   " ",
+                                   span(class = "breakdown-percentage", textOutput("CIimputadopct", inline = TRUE)) #pct personas imputadas
+                                 )
+                             ),
+                             div(class = "breakdown-item",
+                                 span("Sin persona imputada"),
+                                 span(
+                                   span(class = "breakdown-value", textOutput("CISinimputado", inline = TRUE)), #total sin persona imputada
+                                   " ",
+                                   span(class = "breakdown-percentage", textOutput("CISinimputadopct", inline = TRUE)) #pct sin persona imputada
+                                 )
+                             ),
+                             div(class = "breakdown-item",
+                                 span("Mixta"),
+                                 span(
+                                   span(class = "breakdown-value", textOutput("CImixto", inline = TRUE)), #total ci mixta
+                                   " ",
+                                   span(class = "breakdown-percentage", textOutput("CImixtopct", inline = TRUE)) #pct mixta
+                                 )
+                             )
+                             
+                         )
+                     ),
+                     
+                     
+                     #Tablita de C.I. gestionadas
+                     div(class = "breakdown-card",
+                         div(class = "breakdown-title", "Carpetas de investigación gestionadas"),
+                         div(class = "breakdown-main-value", textOutput("ciGestionadas")),
+                         div(id = "tramite_breakdown",
+                             div(class = "breakdown-item",
+                                 span("Iniciadas"),
+                                 span(
+                                   span(class = "breakdown-value", textOutput("ciNuevas", inline = TRUE)),
+                                   " ",
+                                   span(class = "breakdown-percentage", textOutput("ciNuevaspct", inline = TRUE))
+                                 )
+                             ),
+                             div(class = "breakdown-item",
+                                 span("Pendientes del año anterior"),
+                                 span(
+                                   span(class = "breakdown-value", textOutput("ciRezago", inline = TRUE)),
+                                   " ",
+                                   span(class = "breakdown-percentage", textOutput("ciRezagopct", inline = TRUE))
+                                 )
+                             )
+                         )
+                     ),
+                     
+                     
+                     
+                     #Tablita de causas penales gestionadas 
+                     div(class = "breakdown-card",
+                         div(class = "breakdown-title", "Causas penales gestionadas"),
+                         div(class = "breakdown-main-value", textOutput("causasGestionadas")),
+                         div(id = "tramite_breakdown",
+                             div(class = "breakdown-item",
+                                 span("Iniciadas"),
+                                 span(
+                                   span(class = "breakdown-value", textOutput("causasNuevas", inline = TRUE)),
+                                   " ",
+                                   span(class = "breakdown-percentage", textOutput("causasRezago", inline = TRUE))
+                                 )
+                             ),
+                             div(class = "breakdown-item",
+                                 span("Pendientes del año anterior"),
+                                 span(
+                                   span(class = "breakdown-value", textOutput("causasNuevaspct", inline = TRUE)),
+                                   " ",
+                                   span(class = "breakdown-percentage", textOutput("causasRezagopct", inline = TRUE))
+                                 )
+                             )
+                         )
+                     )
+                 ),
+                 
+                 br(),
+                 
+                 # Flujo principal
+                 
+                 div(class = "flow-container",
+                     #Llamadas
+                     div(class = "flow-card uno",
+                         div(class = "flow-title", "Llamadas de emergencia"),
+                         div(class = "flow-main-value", textOutput("llamadas")),
+                         div(class = "flow-detail-item",
+                             span("911: "),
+                             span(class = "flow-detail-value", textOutput("llamadas911", inline = TRUE))
+                         ),
+                         div(class = "flow-detail-item",
+                             span("089: "),
+                             span(class = "flow-detail-value", textOutput("llamadas089", inline = TRUE))
+                         )
+                     ),
+                     
+                     div(class = "flow-operator", "\u279C"),
+                     
+                     #C.I. gestionadas
+                     div(class = "flow-card dos",
+                         div(class = "flow-title", "C.I. gestionadas"),
+                         div(class = "flow-main-value", textOutput("totalci"))
+                     ),
+                     
+                     div(class = "flow-operator", "\u279C"),
+                     
+                     # Canalizadas a MASC
+                     div(class = "flow-card tres",
+                         div(class = "flow-title", "Canalizadas a MASC"),
+                         div(class = "flow-main-value", textOutput("canalizadasMASC")),
+                         div(class = "flow-detail-item",
+                             span(" Concluidas por acuerdos reparatorios: "),
+                             span(class = "flow-detail-value", textOutput("concluidasMASC", inline = TRUE))
+                         )
+                     ),
+                     
+                     div(class = "flow-operator", "\u279C"),
+                     
+                     
+                     # Causas penales
+                     div(class = "flow-card cuatro",
+                         div(class = "flow-title", "Causas penales gestionadas"),
+                         div(class = "flow-main-value", textOutput("totalCausas")) #,
+                         #div(class = "flow-detail-item", textOutput("concluidos_pct"))
+                     ),
+                     
+                     div(class = "flow-operator", "\u279C"),
+                     
+                     # Justicia Alternativa
+                     div(class = "flow-card cinco",
+                         div(class = "flow-title", "Justicia Alternativa"),
+                         div(class = "flow-main-value", textOutput("totalJA")),
+                         div(class = "flow-detail-item",
+                             span("Acuerdos reparatorios: "),
+                             span(class = "flow-detail-value", textOutput("totalAcuerdos", inline = TRUE))
+                         ),
+                         div(class = "flow-detail-item",
+                             span("Suspensión condicional: "),
+                             span(class = "flow-detail-value", textOutput("totalSusp", inline = TRUE))
+                         )   
+                     ),
+                     
+                     div(class = "flow-operator", "\u279C"),
+                     
+                     # Sentencias en Juicio Oral
+                     div(class = "flow-card seis",
+                         div(class = "flow-title", "Sentencias en Juicio Oral"),
+                         div(class = "flow-main-value", textOutput("Sentencias")),
+                         div(class = "flow-detail-item", textOutput("concluidos_pct"))
+                     )
+                 ),
+                 
+                 # Cards de gráficas
+                 # Gráficas de determinaciones
+                 div(class = "breakdown-cards",
+                     div(class = "breakdown-card",
+                         div(class = "breakdown-title", "Determinaciones"),
+                         girafeOutput("grafica_barras_determinaciones", width = "100%", height = "300px")
+                     ),
+                     
+                     # Gráfica de sentencias    
+                     div(class = "breakdown-card",
+                         div(class = "breakdown-title", "Sentencias"),
+                         girafeOutput("grafica_barras_sentencias", width = "100%", height = "300px")
+                     ),
+                     # Tab de pendientes     
+                     div(class = "breakdown-card",
+                         div(class = "breakdown-title", "Pendientes al final del año"),
+                         div(style = "height: 20px; text-align: center;  color: #999;font-size: 20px;",
+                             "Fiscalía:"), 
+                         br(),
+                         div(#class = "flow-main-value", 
+                           style = "height: 25px; text-align: center; color: #882217; font-size: 60px; font-weight: bold;",
+                           textOutput("ciPendientes")), 
+                         br(),
+                         br(),
+                         br(),
+                         div(style = "height: 20px; text-align: center; color: #999;font-size: 20px; ",
+                             "Tribunales:"), 
+                         br(),
+                         div(#class = "flow-main-value", 
+                           style = "height: 25px; text-align: center; color: #882217; font-size: 60px; font-weight: bold;",
+                           textOutput("causasPendientes"))
+                     ) 
+                 )
+             )
+             
+             
+             ), 
+   nav_panel("Gráfico de barras", 
+             
+             div(class = "controls-section",
+                 fluidRow(
+                   column(6,
+                          div(class = "control-group inline-control",
+                              tags$label("Seleccione una variable:", `for` = "ind_sel"),
+                              selectInput("ind_sel", NULL,
+                                          choices = opciones_tuberia,
+                                          selected = "01 - Llamadas 911")
+                          )),
+                   column(6,
+                          div(class = "control-group inline-control",
+                              tags$label("Año:", `for` = "ano_sel"),
+                              selectInput("ano_sel", NULL,
+                                          choices = c("2024", "2023", "2022", "2021", "2020", "2019"),
+                                          selected = "2023")
+                          ))
+                 )
+             ),
+             div(
+               style = "width: 100%; height: min(65vh, 550px);",
+               girafeOutput("grafica_barras_tub", width = "100%", height = "100%")
+             )
+             
+             ), 
+   nav_panel("Series de tiempo", 
+            
+      
+   ), 
   
-  div(class = "main-container",
-      # Controles al inicio
-      div(class = "controls-section",
-          fluidRow(
-            column(3,
-                   div(class = "control-group",
-                       tags$label("Seleccione una entidad:", `for` = "sel_entidad"),
-                       selectInput("sel_entidad", "",
-                                   choices = lista_entidades,
-                                   selected = "Nacional") #aquí poner Nacional
-                   )),
-            column(3,
-                   div(class = "control-group",
-                       tags$label("Año:", `for` = "ano"),
-                       selectInput("ano", "",
-                                   choices = ("2024"),
-                                   selected = "2024") #aquí poner solo 2024 y que no hay forma de cambiarlo
-                   )))),
-      
-      # Header con información general
-      # div(class = "header-section",
-      #     div(class = "header-title", "Información general"),
-      #     div(class = "metrics-row",
-      #         div(class = "metric-card blue",
-      #             div(class = "metric-icon", "🏛️"),
-      #             div(class = "metric-value", textOutput("total_tlf")),
-      #             div(class = "metric-label", "TLF")
-      #         ),
-      #         div(class = "metric-card green",
-      #             div(class = "metric-icon", "⚖️"),
-      #             div(class = "metric-value", textOutput("total_jueces")),
-      #             div(class = "metric-label", "Jueces")
-      #         ),
-      #         div(class = "metric-card orange",
-      #             div(class = "metric-icon", "🔨"),
-      #             div(class = "metric-value", textOutput("total_juezas")),
-      #             div(class = "metric-label", "Juezas")
-      #         )
-      #     )
-      # ),
-      div(class = "breakdown-cards",
-          #Tablita de C.I. iniciadas
-          div(class = "breakdown-card",
-              div(class = "breakdown-title", "Carpetas de investigación iniciadas"),
-              div(class = "flow-main-value", textOutput("ciInicidas")), #Total de C.I. iniciadas
-              div(id = "tramite_breakdown",
-                  div(class = "breakdown-item",
-                      span("Con persona imputada"),
-                      span(
-                        span(class = "breakdown-value", textOutput("CIimputado", inline = TRUE)), #total con personas imputadas
-                        " ",
-                        span(class = "breakdown-percentage", textOutput("CIimputadopct", inline = TRUE)) #pct personas imputadas
-                      )
-                  ),
-                  div(class = "breakdown-item",
-                      span("Sin persona imputada"),
-                      span(
-                        span(class = "breakdown-value", textOutput("CISinimputado", inline = TRUE)), #total sin persona imputada
-                        " ",
-                        span(class = "breakdown-percentage", textOutput("CISinimputadopct", inline = TRUE)) #pct sin persona imputada
-                      )
-                  ),
-                  div(class = "breakdown-item",
-                      span("Mixta"),
-                      span(
-                        span(class = "breakdown-value", textOutput("CImixto", inline = TRUE)), #total ci mixta
-                        " ",
-                        span(class = "breakdown-percentage", textOutput("CImixtopct", inline = TRUE)) #pct mixta
-                      )
-                  )
-                  
-              )
-          ),
-          
-          
-          #Tablita de C.I. gestionadas
-          div(class = "breakdown-card",
-              div(class = "breakdown-title", "Carpetas de investigación gestionadas"),
-              div(class = "flow-main-value", textOutput("ciGestionadas")),
-              div(id = "tramite_breakdown",
-                  div(class = "breakdown-item",
-                      span("Iniciadas"),
-                      span(
-                        span(class = "breakdown-value", textOutput("ciNuevas", inline = TRUE)),
-                        " ",
-                        span(class = "breakdown-percentage", textOutput("ciNuevaspct", inline = TRUE))
-                      )
-                  ),
-                  div(class = "breakdown-item",
-                      span("Pendientes del año anterior"),
-                      span(
-                        span(class = "breakdown-value", textOutput("ciRezago", inline = TRUE)),
-                        " ",
-                        span(class = "breakdown-percentage", textOutput("ciRezagopct", inline = TRUE))
-                      )
-                  )
-              )
-          ),
-          
-          
-          
-          #Tablita de causas penales gestionadas 
-          div(class = "breakdown-card",
-              div(class = "breakdown-title", "Causas penales gestionadas"),
-              div(class = "flow-main-value", textOutput("causasGestionadas")),
-              div(id = "tramite_breakdown",
-                  div(class = "breakdown-item",
-                      span("Iniciadas"),
-                      span(
-                        span(class = "breakdown-value", textOutput("causasNuevas", inline = TRUE)),
-                        " ",
-                        span(class = "breakdown-percentage", textOutput("causasRezago", inline = TRUE))
-                      )
-                  ),
-                  div(class = "breakdown-item",
-                      span("Pendientes del año anterior"),
-                      span(
-                        span(class = "breakdown-value", textOutput("causasNuevaspct", inline = TRUE)),
-                        " ",
-                        span(class = "breakdown-percentage", textOutput("causasRezagopct", inline = TRUE))
-                      )
-                  )
-              )
-          )
-      ),
-      
-      br(),
-      
-      # Flujo principal
-      
-      div(class = "flow-container",
-          #Llamadas
-          div(class = "flow-card uno",
-              div(class = "flow-title", "Llamadas de emergencia"),
-              div(class = "flow-main-value", textOutput("llamadas")),
-              div(class = "flow-detail-item",
-                  span("911: "),
-                  span(class = "flow-detail-value", textOutput("llamadas911", inline = TRUE))
-              ),
-              div(class = "flow-detail-item",
-                  span("089: "),
-                  span(class = "flow-detail-value", textOutput("llamadas089", inline = TRUE))
-              )
-          ),
-          
-          div(class = "flow-operator", "\u279C"),
-          
-          #C.I. gestionadas
-          div(class = "flow-card dos",
-              div(class = "flow-title", "C.I. gestionadas"),
-              div(class = "flow-main-value", textOutput("totalci"))
-          ),
-          
-          div(class = "flow-operator", "\u279C"),
-          
-          # Canalizadas a MASC
-          div(class = "flow-card tres",
-              div(class = "flow-title", "Canalizadas a MASC"),
-              div(class = "flow-main-value", textOutput("canalizadasMASC")),
-              div(class = "flow-detail-item",
-                  span(" Concluidas por acuerdos reparatorios: "),
-                  span(class = "flow-detail-value", textOutput("concluidasMASC", inline = TRUE))
-              )
-          ),
-          
-          div(class = "flow-operator", "\u279C"),
-          
-          
-          # Causas penales
-          div(class = "flow-card cuatro",
-              div(class = "flow-title", "Causas penales gestionadas"),
-              div(class = "flow-main-value", textOutput("totalCausas")) #,
-              #div(class = "flow-detail-item", textOutput("concluidos_pct"))
-          ),
-          
-          div(class = "flow-operator", "\u279C"),
-          
-          # Justicia Alternativa
-          div(class = "flow-card cinco",
-              div(class = "flow-title", "Justicia Alternativa"),
-              div(class = "flow-main-value", textOutput("totalJA")),
-              div(class = "flow-detail-item",
-                  span("Acuerdos reparatorios: "),
-                  span(class = "flow-detail-value", textOutput("totalAcuerdos", inline = TRUE))
-              ),
-              div(class = "flow-detail-item",
-                  span("Suspensión condicional: "),
-                  span(class = "flow-detail-value", textOutput("totalSusp", inline = TRUE))
-              )   
-          ),
-          
-          div(class = "flow-operator", "\u279C"),
-          
-          # Sentencias en Juicio Oral
-          div(class = "flow-card seis",
-              div(class = "flow-title", "Sentencias en Juicio Oral"),
-              div(class = "flow-main-value", textOutput("Sentencias")),
-              div(class = "flow-detail-item", textOutput("concluidos_pct"))
-          )
-      ),
-      
-      # Cards de gráficas
-      # Gráficas de determinaciones
-      div(class = "breakdown-cards",
-          div(class = "breakdown-card",
-              div(class = "breakdown-title", "Determinaciones"),
-              girafeOutput("grafica_barras_determinaciones", width = "100%", height = "300px")
-          ),
-          
-      # Gráfica de sentencias    
-          div(class = "breakdown-card",
-              div(class = "breakdown-title", "Sentencias"),
-              girafeOutput("grafica_barras_sentencias", width = "100%", height = "300px")
-          ),
-      # Tab de pendientes     
-          div(class = "breakdown-card",
-              div(class = "breakdown-title", "Pendientes al final del año"),
-              div(style = "height: 20px; text-align: center;  color: #999;font-size: 20px;",
-                  "Fiscalía:"), 
-              br(),
-              div(#class = "flow-main-value", 
-                style = "height: 25px; text-align: center; color: #882217; font-size: 60px; font-weight: bold;",
-                  textOutput("ciPendientes")), 
-              br(),
-              br(),
-              br(),
-              div(style = "height: 20px; text-align: center; color: #999;font-size: 20px; ",
-                  "Tribunales:"), 
-              br(),
-              div(#class = "flow-main-value", 
-                style = "height: 25px; text-align: center; color: #882217; font-size: 60px; font-weight: bold;",
-                  textOutput("causasPendientes"))
-          ) 
-      )
   )
 )
 
@@ -364,6 +605,14 @@ server <- function(input, output, session) {
   
   output$grafica_barras_sentencias <- renderGirafe({
     gen_barra_sentencias(ent_sel = input$sel_entidad)
+  })
+  
+  
+  # Gráfico de líneas 
+  output$grafica_barras_tub <- renderGirafe({
+    gen_barras_tub(
+                   ind_sel = input$ind_sel, 
+                   ano_sel_imp = input$ano_sel)
   })
   
 

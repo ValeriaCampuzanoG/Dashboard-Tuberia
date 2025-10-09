@@ -58,6 +58,23 @@ color_scale <- rev(as.character(
 bd_tub2024 <- read_excel("www/bd/bd_tuberia_2024.xlsx")
 bd_tub2024 <- bd_tub2024[-c(1), ]
 
+
+bd_tuberia_wide <- read_excel("www/bd/bd_tuberia_wide.xlsx", 
+                              sheet = "bd_wide")
+
+bd_tuberia <- bd_tuberia_wide %>%
+  mutate(across(4:40, as.numeric)) %>%
+  pivot_longer(
+    cols = 4:40, 
+    names_to = "variable",
+    values_to = "total"
+    ) %>%
+  left_join(diccionario_tuberia, by = "variable") %>%
+  mutate( cod_indicador = paste0( num_variable, " - ", nom_variable))
+
+
+
+
 # Lista de entidades
 lista_entidades <- unique(bd_tub2024$entidad)
 
@@ -314,3 +331,259 @@ gen_barra_sentencias <- function(ent_sel) {
 }
 
 gen_barra_sentencias("Veracruz")
+
+
+
+
+
+create_mcv_header <- function() {
+  tagList(
+    # Barra superior con redes sociales
+    # div(
+    #   class = "mcv-top-bar",
+    #   style = "
+    #     background-color: #6551D0;
+    #     color: white;
+    #     padding: 10px 0;
+    #     font-size: 12px;
+    #     position: relative;
+    #     font-family: 'Ubuntu', sans-serif;
+    #   ",
+    #   div(
+    #     class = "container-fluid",
+    #     style = "max-width: 1200px; margin: 0 auto; padding: 0 20px;",
+    #     div(
+    #       style = "display: flex; justify-content: space-between; align-items: center;",
+    #       
+    #       # Redes sociales izquierda
+    #       div(
+    #         style = "display: flex; align-items: center; gap: 15px;",
+    #         tags$a(
+    #           href = "https://twitter.com/mexicocomovamos", 
+    #           style = "color: white; font-size: 18px; text-decoration: none;",
+    #           HTML('<i class="fab fa-twitter"></i>')
+    #         ),
+    #         tags$a(
+    #           href = "https://facebook.com/mexicocomovamos", 
+    #           style = "color: white; font-size: 18px; text-decoration: none;",
+    #           HTML('<i class="fab fa-facebook"></i>')
+    #         ),
+    #         tags$a(
+    #           href = "https://youtube.com/mexicocomovamos", 
+    #           style = "color: white; font-size: 18px; text-decoration: none;",
+    #           HTML('<i class="fab fa-youtube"></i>')
+    #         ),
+    #         tags$a(
+    #           href = "https://instagram.com/mexicocomovamos", 
+    #           style = "color: white; font-size: 18px; text-decoration: none;",
+    #           HTML('<i class="fab fa-instagram"></i>')
+    #         )
+    #       ),
+    #       
+    #       # Mensaje central
+    #       div(
+    #         style = "color: white; font-weight: 500; font-family: 'Ubuntu', sans-serif;",
+    #         "México, ¿cómo vamos? 🇲🇽"
+    #       ),
+    #       
+    #       # Espacio derecha
+    #       div(
+    #         style = "width: 150px;"
+    #       )
+    #     )
+    #   )
+    # ),
+    
+    # Barra principal con navegación
+    div(
+      class = "mcv-main-header",
+      style = "
+        background-color: white;
+        color: #333333;
+        padding: 20px 0;
+        font-family: 'Montserrat', sans-serif;
+        border-bottom: 1px solid #e9ecef;
+      ",
+      div(
+        class = "container-fluid",
+        style = "max-width: 1200px; margin: 0 auto; padding: 0 20px;",
+        div(
+          style = "display: flex; justify-content: space-between; align-items: center;",
+          
+          # Navegación izquierda
+          div(
+            style = "display: flex; align-items: center; gap: 30px; flex: 1;",
+            
+            tags$a(
+              #href = "https://mexicocomovamos.mx/equipo/",
+              style = "
+                color: #333333;
+                text-decoration: none;
+                font-size: 12px;
+                font-weight: 500;
+                padding: 8px 0;
+                border-bottom: 2px solid transparent;
+                transition: all 0.3s ease;
+                font-family: 'Montserrat', sans-serif;
+              ",
+              onmouseover = "this.style.borderBottom='2px solid  #813753'",
+              onmouseout = "this.style.borderBottom='2px solid transparent'",
+              "Hallazgos",
+            ),
+            
+            tags$a(
+              #href = "https://mexicocomovamos.mx/indice-de-progreso-social/",
+              style = "
+                color: #333333;
+                text-decoration: none;
+                font-size: 12px;
+                font-weight: 500;
+                padding: 8px 0;
+                border-bottom: 2px solid transparent;
+                transition: all 0.3s ease;
+                font-family: 'Montserrat', sans-serif;
+              ",
+              onmouseover = "this.style.borderBottom='2px solid  #813753'",
+              onmouseout = "this.style.borderBottom='2px solid transparent'",
+              "Índice de",
+              br(),
+              "Capacidad"
+            )
+          ),
+          
+          # Logo central
+          div(
+            style = "flex: 0 0 auto; margin: 0 20px;",
+            tags$a(
+              href = "https://www.mexicoevalua.org/hallazgos-2023/",
+              tags$img(
+                src = "https://www.mexicoevalua.org/wp-content/uploads/2023/06/mxe-logotipoprincipal-05.png",
+                alt = "México Evalúa",
+                style = "height: 60px; width: auto;"
+              )
+            )
+          ),
+          
+          # Navegación derecha
+          div(
+            style = "display: flex; align-items: center; gap: 20px; flex: 1; justify-content: flex-end;",
+            
+            tags$a(
+              #href = "https://mexicocomovamos.mx/fichas-por-estado/",
+              style = "
+                color: #333333;
+                text-decoration: none;
+                font-size: 12px;
+                font-weight: 500;
+                padding: 8px 0;
+                border-bottom: 2px solid transparent;
+                transition: all 0.3s ease;
+                font-family: 'Montserrat', sans-serif;
+              ",
+              onmouseover = "this.style.borderBottom='2px solid  #813753'",
+              onmouseout = "this.style.borderBottom='2px solid transparent'",
+              "Indicador de",
+              br(),
+              "Impunidad"
+            ),
+            
+            tags$a(
+              #href = "https://mexicocomovamos.mx/categoria/publicaciones/",
+              style = "
+                color:  #813753;
+                text-decoration: none;
+                font-size: 12px;
+                font-weight: 700;
+                padding: 8px 0;
+                border-bottom: 2px solid  #813753;
+                font-family: 'Montserrat', sans-serif;
+              ", 
+              "Tubería",
+              br(),
+              "Procesal"
+            )
+          )
+        )
+      )
+    )
+  )
+}
+
+
+
+# Gráfica de barras Tubería Procesal -----
+
+
+
+opciones_tuberia <- unique(bd_tuberia$cod_indicador)
+
+#ind_sel== "índice de impunidad"
+
+gen_barras_tub <- function(ind_sel, ano_sel_imp){
+  
+  datos_sel <- bd_tuberia %>%
+    filter(cod_indicador %in% opciones_tuberia) %>%
+    filter(cod_indicador == ind_sel, 
+           ano == ano_sel_imp,
+           !entidad == "Nacional") %>% 
+    filter(!is.na(total)) 
+  
+  g <- ggplot(datos_sel, 
+              aes(x = reorder(entidad, -total), 
+                  y = total, 
+                  fill = total,
+                  tooltip = paste0("<span style='font-size:20px;'><b>", entidad, ", ", ano, "</b></span><br>",
+                                   "<span style='font-size:16px;'>", prettyNum(round(total, 2), big.mark = ","), "</span>"),
+                  data_id = entidad)) +
+    ggiraph::geom_col_interactive() +
+    ggiraph::geom_text_interactive(aes(label = prettyNum(round(total,2), big.mark = ",")), hjust = -0.5, colour = "#535353") +
+    coord_flip() +
+    scale_fill_gradientn(colors = color_scale) +
+    #scale_fill_gradient(low = "#D39C83", high = "#813753") +
+    scale_y_continuous(expand = expansion(c(0, 0.1)), labels = comma_format()) +
+    labs(x = "Entidad", 
+         y = "",
+         title = paste0(datos_sel$nom_variable), 
+         subtitle = paste0(datos_sel$ano),
+         caption = "@mexeval | Elaboración propia con base en el CNIJE, CNPJE, CNSE."
+    ) +
+    theme_bw() +
+    theme(
+      axis.title = element_text(family = "Montserrat", size = 9),
+      plot.subtitle = element_text(family = "Montserrat", 
+                                   size = 20, 
+                                   colour = "#636363",
+                                   margin = margin(b = 30, unit = "pt")),
+      plot.title = element_text(family = "Montserrat",
+                                face = "bold",
+                                size = 25,
+                                hjust = 0,
+                                margin = margin(b = 15, unit = "pt")),
+      #plot.title.position = "plot",
+      panel.grid.major.x = element_blank(),
+      panel.grid.minor = element_blank(),
+      panel.grid = element_blank(),
+      panel.border = element_blank(),
+      axis.line = element_line(),
+      legend.position = "none" #,
+      #axis.ticks.length = unit(0.2, "cm")
+      #plot.margin = margin(60, 20, 20, 20, "pt")
+    ) 
+  
+  
+  ggiraph::girafe(ggobj = g, 
+                  width_svg = 10, 
+                  height_svg =6,
+                  pointsize = 12,
+                  options = list(opts_tooltip(css = "background-color:#d9d9d9;color:black;padding:5px;border-radius:3px;opacity:0.9"),
+                                 opts_hover(css = ''),
+                                 opts_hover_inv(css = "opacity:0.1;"),
+                                 opts_selection(type = "none"),
+                                 opts_toolbar(saveaspng = T)))
+  
+}
+
+gen_barras_tub("14 - Archivo temporal", "2022")
+
+
+
