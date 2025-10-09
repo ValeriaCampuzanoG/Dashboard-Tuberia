@@ -1,0 +1,13 @@
+name: Dashboard-Tuberia
+title: Dashboard-Tuberia
+username: valeriacampuzano-me
+account: valeriacampuzano-me
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 15714768
+bundleId: 11015172
+url: https://valeriacampuzano-me.shinyapps.io/Dashboard-Tuberia/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: pruebatabla/app.R

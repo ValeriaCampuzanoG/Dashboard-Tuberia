@@ -14,7 +14,7 @@ library(fresh)
 
 #source(file = "paquetes-setup.R")
 #source(file = "importacion_textos.R")
-#source(file = "codigo_preparacion.R")
+source(file = "preparacion_tuberia.R")
 
 
 # UI

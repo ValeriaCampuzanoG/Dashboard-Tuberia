@@ -54,11 +54,15 @@ color_scale <- rev(as.character(
 ))
 
 
-# Importar datos
+# Importar datos de 2023
 bd_tub2024 <- read_excel("www/bd/bd_tuberia_2024.xlsx")
 bd_tub2024 <- bd_tub2024[-c(1), ]
 
 
+#Importar diccionario 
+diccionario_tuberia <- read_excel("www/bd/bd_tuberia_wide.xlsx")
+
+# Importar tuberia completa
 bd_tuberia_wide <- read_excel("www/bd/bd_tuberia_wide.xlsx", 
                               sheet = "bd_wide")
 
@@ -588,7 +592,7 @@ gen_barras_tub <- function(ind_sel, ano_sel_imp){
                                  opts_hover(css = ''),
                                  opts_hover_inv(css = "opacity:0.1;"),
                                  opts_selection(type = "none"),
-                                 opts_toolbar(saveaspng = T)))
+                                 opts_toolbar(saveaspng = TRUE)))
   
 }
 
