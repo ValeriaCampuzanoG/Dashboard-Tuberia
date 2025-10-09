@@ -536,7 +536,7 @@ gen_barras_tub <- function(ind_sel, ano_sel_imp){
                                    "<span style='font-size:16px;'>", prettyNum(round(total, 2), big.mark = ","), "</span>"),
                   data_id = entidad)) +
     ggiraph::geom_col_interactive() +
-    ggiraph::geom_text_interactive(aes(label = prettyNum(round(total,2), big.mark = ",")), hjust = -0.5, colour = "#535353") +
+    ggiraph::geom_text_interactive(aes(label = prettyNum(round(total,2), big.mark = ",")), hjust = -0.5, colour = "#535353", size = 3) +
     coord_flip() +
     scale_fill_gradientn(colors = color_scale) +
     #scale_fill_gradient(low = "#D39C83", high = "#813753") +
@@ -551,14 +551,16 @@ gen_barras_tub <- function(ind_sel, ano_sel_imp){
     theme(
       axis.title = element_text(family = "Montserrat", size = 9),
       plot.subtitle = element_text(family = "Montserrat", 
-                                   size = 20, 
+                                   size = 15, 
                                    colour = "#636363",
-                                   margin = margin(b = 30, unit = "pt")),
+                                   margin = margin(b = 10, unit = "pt")),
       plot.title = element_text(family = "Montserrat",
                                 face = "bold",
-                                size = 25,
+                                size = 20,
                                 hjust = 0,
-                                margin = margin(b = 15, unit = "pt")),
+                                margin = margin(b = 10, unit = "pt")),
+      plot.caption = element_text(family = "Montserrat"), 
+      #axis.text = element_text(family = "Montserrat"), 
       #plot.title.position = "plot",
       panel.grid.major.x = element_blank(),
       panel.grid.minor = element_blank(),
@@ -585,5 +587,116 @@ gen_barras_tub <- function(ind_sel, ano_sel_imp){
 
 gen_barras_tub("14 - Archivo temporal", "2022")
 
+
+# Gráfica de lineas
+gen_lineas_tub <- function(ind_sel, entidades_resaltadas){
+  
+  datos_sel <- bd_tuberia %>%
+    #filter(nom_indicador %in% opciones_impunidad) %>%
+    filter(cod_indicador == ind_sel, 
+           !entidad == "Nacional") 
+  
+  
+  datos_sel <- datos_sel %>%
+    mutate(
+      is_selected = entidad %in% entidades_resaltadas,
+      line_color  = ifelse(is_selected, "#C1766F", "grey80"),
+      point_color = ifelse(is_selected, "#541F3F", "grey75"),
+      line_alpha  = ifelse(is_selected, 1, 0.1)
+    )
+  
+  
+  datos_labels <- datos_sel %>%
+    filter(is_selected) %>%
+    group_by(entidad) %>%
+    slice_max(ano, n = 1, with_ties = FALSE) %>%
+    ungroup()
+  
+  g <- datos_sel %>% 
+    ggplot(aes(x = ano, 
+               y = total, 
+               group = entidad)) +
+    geom_line_interactive(
+      aes(color = I(line_color), 
+          alpha = line_alpha,
+          tooltip = paste0(
+            "<span style='font-size:24px;'><b>", entidad, ", " ,ano,  "</b></span><br><br>",
+            "<span style='font-size:18px;'>", prettyNum(round(total, 2), big.mark = ",")
+          ), 
+          data_id = entidad),
+      size = 0.3,    
+      show.legend = FALSE
+    )  +
+    geom_point_interactive(aes(color = I(point_color),
+                               alpha = line_alpha,
+                               tooltip = if(ind_sel == "Índice de impunidad"){
+                                 paste0(
+                                   "<span style='font-size:24px;'><b>", entidad, " " ,ano,  "</b></span><br><br>",
+                                   "<span style='font-size:18px;'>", prettyNum(round(total, 2), big.mark = ","), " %") 
+                               } else {
+                                 paste0(
+                                   "<span style='font-size:24px;'><b>", entidad, " " ,ano,  "</b></span><br><br>",
+                                   "<span style='font-size:18px;'>", prettyNum(round(total, 2), big.mark = ",")) 
+                               },
+                               data_id = entidad),
+                           size = 2, show.legend = FALSE) +
+    scale_alpha_identity() +
+    geom_text_interactive(data = datos_labels, 
+                          aes(x = ano, y = total, label = entidad,
+                              tooltip = entidad, 
+                              data_id = entidad),
+                          hjust = -0.1, vjust = 0.5, size = 3, color = "#541F3F") +
+    labs(
+      title = paste0(datos_sel$nom_variable), 
+      x = "Año",
+      y = "", 
+      caption = "@mexeval | Elaboración propia con base en el CNIJE, CNPJE, CNSE."
+    ) +
+    scale_y_continuous(
+      labels = comma_format()
+    ) + 
+    scale_x_discrete(expand = expansion(mult = c(0.05, 0.15))) +
+    theme_bw() +
+    theme(
+      axis.title = element_text(family = "Montserrat", size = 9),
+      plot.subtitle = element_text(family = "Montserrat", 
+                                   size = 15, 
+                                   colour = "#636363",
+                                   margin = margin(b = 10, unit = "pt")),
+      plot.title = element_text(family = "Montserrat",
+                                face = "bold",
+                                size = 20,
+                                hjust = 0,
+                                margin = margin(b = 20, unit = "pt")),
+      plot.caption = element_text(family = "Montserrat"), 
+      #axis.text = element_text(family = "Montserrat"), 
+      #plot.title.position = "plot",
+      panel.grid.major.x = element_blank(),
+      panel.grid.minor = element_blank(),
+      panel.grid = element_blank(),
+      panel.border = element_blank(),
+      axis.line = element_line(),
+      legend.position = "none" #,
+      #axis.ticks.length = unit(0.2, "cm")
+      #plot.margin = margin(60, 20, 20, 20, "pt")
+    ) 
+    
+  
+  
+  ggiraph::girafe(ggobj = g, 
+                  width_svg = 10, 
+                  height_svg =6,
+                  pointsize = 12,
+                  options = list(opts_tooltip(css = "background-color:#d9d9d9;color:black;padding:5px;border-radius:3px;opacity:0.9"),
+                                 opts_hover(css = ''),
+                                 opts_hover_inv(css = "opacity:0.1;"),
+                                 opts_selection(type = "none"),
+                                 opts_toolbar(saveaspng = T)))
+  
+  
+  
+}
+
+gen_lineas_tub("04 - Carpetas de investigación iniciadas", "Oaxaca")
 
 

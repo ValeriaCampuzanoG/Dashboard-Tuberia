@@ -491,14 +491,43 @@ ui <- fluidPage(
                  )
              ),
              div(
-               style = "width: 100%; height: min(65vh, 550px);",
+               style = "width: 100%; height: min(55vh, 500px);",
                girafeOutput("grafica_barras_tub", width = "100%", height = "100%")
              )
              
              ), 
    nav_panel("Series de tiempo", 
             
-      
+             div(class = "controls-section",
+                 fluidRow(
+                   column(6,
+                          div(class = "control-group inline-control",
+                              tags$label("Seleccione una variable:", `for` = "ind_sel_2"),
+                              selectInput("ind_sel_2", NULL,
+                                          choices = opciones_tuberia,
+                                          selected = "01 - Llamadas 911")
+                          )),
+                   column(
+                     width = 6, 
+                     shinyWidgets::pickerInput(
+                       inputId = "entidades_lineas_tuberia",
+                       label = "Selecciona la(s) entidad(es):",
+                       choices = lista_entidades,
+                       multiple = TRUE,
+                       selected = sort(x = lista_entidades),
+                       options = list(`actions-box` = TRUE,
+                                      `deselect-all-text` = "Deseleccionar todas",
+                                      `select-all-text` = "Seleccionar todas",
+                                      `none-selected-text` = "Ninguna unidad seleccionada")
+                     )
+                   )
+                 )
+             ),
+             div(
+               style = "width: 100%; height: min(55vh, 500px);",
+               girafeOutput("grafica_lineas_tub", width = "100%", height = "100%")
+             )
+             
    ), 
   
   )
@@ -608,14 +637,20 @@ server <- function(input, output, session) {
   })
   
   
-  # Gráfico de líneas 
+  # Gráfico de barras 
   output$grafica_barras_tub <- renderGirafe({
     gen_barras_tub(
                    ind_sel = input$ind_sel, 
                    ano_sel_imp = input$ano_sel)
   })
   
-
+  
+  # Gráfico de líneas 
+  output$grafica_lineas_tub <- renderGirafe({
+    gen_lineas_tub(
+      ind_sel = input$ind_sel_2, 
+      entidades_resaltadas = input$entidades_lineas_tuberia)
+  })
   
 
 }
