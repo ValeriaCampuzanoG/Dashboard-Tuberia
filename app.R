@@ -1,4 +1,4 @@
-# DASHBOARD CAPACIDAD
+ # DASHBOARD CAPACIDAD
 
 
 #Librerías 
@@ -13,7 +13,7 @@ library(reactable)
 library(fresh)
 
 #source(file = "paquetes-setup.R")
-#source(file = "importacion_textos.R")
+source(file = "importacion_textos.R")
 source(file = "preparacion_tuberia.R")
 
 
@@ -559,7 +559,26 @@ ui <- fluidPage(
                  h3(textOutput("table_title")),
                  reactableOutput("custom_table")
                )
-             ))
+             )),
+   tabPanel("Metodología",
+            titlePanel(""),
+            div(
+              style = "margin: 20px;",
+              p(" La tubería procesal diseñada por México Evalúa destaca porque permite ver rápidamente el proceso penal completo de forma sistémica. También permite identificar los embudos donde los casos dejan de fluir, indicando áreas de oportunidad en las instituciones de justicia. 
+
+La tubería procesal es un reflejo del flujo establecido en el Código Nacional de Procedimientos Penales, que nos permite visualizar los resultados en las diferentes soluciones que ofrece el sistema acusatorio y la relación de entradas y salidas entre instituciones."
+                ),
+              br(),
+              h3("Fuentes y variables"), 
+              br(),
+              p("En la siguiente table pueden encontrar las fuentes y las variables con las que se construye la tubería procesal:"),
+              br(),
+              br(),
+              tuberia_metodologia_tabla
+              
+              
+              )           
+   )
   
   )
 )

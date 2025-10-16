@@ -27,6 +27,19 @@ library(ggplot2)
 library(ggiraph)
 
 
+#install.packages("systemfonts") 
+
+
+#font_path <- "/path/to/your/font/MyFont.ttf"
+
+# Register the font
+sysfonts::font_add_google(name = "Montserrat", family = "Montserrat")
+ showtext::showtext_auto()
+# 
+# systemfonts::register_font()
+ 
+ 
+ systemfonts::match_fonts("Montserrat")
 
 
 theme_hgz <- create_theme(
